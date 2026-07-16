@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MR EMA RECON SUITE // PRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Space+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #090d0c;
+    --bg-raised: #101917;
+    --cyan: #33d9d4;
+    --cyan-dim: #1c6b68;
+    --cyan-faint: rgba(51,217,212,0.08);
+    --amber: #ffb020;
+    --amber-dim: #7a5a1c;
+    --paper: #e3ece9;
+    --paper-dim: #74928c;
+    --danger: #ff5c5c;
+    --rule: #1a2422;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background: var(--bg);
+    color: var(--paper);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  body::before{
+    content:"";
+    position: fixed; inset:0;
+    pointer-events:none;
+    z-index: 50;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.015) 0px,
+      rgba(255,255,255,0.015) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: overlay;
+  }
+  body::after{
+    content:"";
+    position: fixed; inset:0;
+    pointer-events:none;
+    z-index: 51;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 130%);
+  }
+  ::selection{ background: var(--cyan); color: #06100f; }
+
+  a{color: var(--cyan); text-decoration:none;}
+  .disp{ font-family:'Space Mono', monospace; }
+  .mono-display{ font-family:'Major Mono Display', monospace; }
+
+  .wrap{ max-width: 1000px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- BOOT OVERLAY ---------- */
+  #boot{
+    position: fixed; inset:0; z-index: 100;
+    background: #090d0c;
+    color: var(--cyan);
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13px;
+    padding: 40px;
+    white-space: pre-wrap;
+    overflow: hidden;
+    transition: opacity .6s ease, visibility .6s ease;
+  }
+  #boot.hide{ opacity:0; visibility:hidden; }
+  #boot .caret{
+    display:inline-block; width:8px; height:14px;
+    background: var(--cyan);
+    animation: blink 1s steps(1) infinite;
+    vertical-align: -2px;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+  @media (prefers-reduced-motion: reduce){
+    #boot{ display:none; }
+  }
+
+  /* ---------- NAV ---------- */
+  header{
+    position: sticky; top:0; z-index: 40;
+    background: rgba(9,13,12,0.9);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .navrow{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 16px 28px;
+    max-width: 1000px; margin:0 auto;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:'Space Mono',monospace; font-weight:700; letter-spacing:.5px; color: var(--paper); font-size:14px; }
+  .brand .dot{ width:9px;height:9px;border-radius:50%; background: var(--cyan); box-shadow:0 0 8px var(--cyan); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+  nav a{ color: var(--paper-dim); font-size:13px; margin-left: 22px; }
+  nav a:hover{ color: var(--cyan); }
+
+  /* ---------- HERO ---------- */
+  .hero{ padding: 64px 0 56px; border-bottom: 1px solid var(--rule); position:relative; }
+  .hero-grid{ display:grid; grid-template-columns: 1.3fr 0.7fr; gap: 40px; align-items:center; }
+  .prompt-line{ color: var(--cyan); font-size:13px; margin-bottom:18px; opacity:.85;}
+  .prompt-line span{ color: var(--paper-dim); }
+  h1.mono-display{
+    font-size: clamp(24px, 4.6vw, 40px);
+    line-height: 1.28;
+    color: var(--cyan);
+    text-shadow: 0 0 20px rgba(51,217,212,0.22);
+    letter-spacing: -1px;
+  }
+  h1.mono-display .pro{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 0.4em;
+    vertical-align: middle;
+    color: var(--bg);
+    background: var(--cyan);
+    padding: 3px 9px;
+    margin-left: 10px;
+    letter-spacing: 1px;
+    font-weight:700;
+  }
+  .tagline{ max-width: 520px; margin-top: 22px; color: var(--paper); font-size: 16px; }
+  .tagline b{ color: var(--cyan); font-weight:600; }
+  .hero-meta{ display:flex; gap:26px; margin-top:32px; flex-wrap:wrap; }
+  .meta-item{ font-size:12px; color: var(--paper-dim); }
+  .meta-item b{ display:block; color: var(--paper); font-size:19px; font-family:'Space Mono',monospace; }
+
+  .cta-row{ display:flex; gap:14px; margin-top: 34px; flex-wrap:wrap; }
+  .btn{
+    font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600;
+    padding: 12px 20px; border:1px solid var(--cyan); color: var(--cyan);
+    background: transparent; cursor:pointer; letter-spacing:.4px;
+    transition: background .15s ease, color .15s ease;
+  }
+  .btn.solid{ background: var(--cyan); color:#06100f; }
+  .btn:hover{ background: var(--cyan); color:#06100f; }
+  .btn.solid:hover{ background: transparent; color: var(--cyan); }
+
+  /* ---------- RADAR SIGNATURE ---------- */
+  .radar-holder{ display:flex; justify-content:center; }
+  .radar{
+    position: relative; width: 250px; height: 250px; border-radius:50%;
+    border: 1px solid var(--rule);
+    background: radial-gradient(circle, var(--cyan-faint) 0%, transparent 72%);
+  }
+  .radar-rings{
+    position:absolute; inset:0; border-radius:50%;
+    background: repeating-radial-gradient(circle at center, transparent 0 38px, rgba(51,217,212,0.16) 38px 39px);
+  }
+  .radar-cross{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(var(--rule) 0 0) center/100% 1px no-repeat,
+      linear-gradient(90deg, var(--rule) 0 0) center/1px 100% no-repeat;
+  }
+  .radar-sweep{
+    position:absolute; inset:0; border-radius:50%; overflow:hidden;
+    background: conic-gradient(from 0deg, rgba(51,217,212,0.55), transparent 55deg, transparent 360deg);
+    animation: spin 6s linear infinite;
+    mix-blend-mode: screen;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+  .radar-core{
+    position:absolute; top:50%; left:50%; width:8px; height:8px; margin:-4px;
+    border-radius:50%; background: var(--cyan); box-shadow:0 0 10px var(--cyan);
+  }
+  .blip{ position:absolute; top:50%; left:50%; width:0; height:0; transform: rotate(var(--a)) translate(0,-108px); }
+  .blip i{
+    position:absolute; width:6px; height:6px; margin:-3px; border-radius:50%;
+    background: var(--cyan); opacity:.5;
+    animation: blipflash 6s linear infinite;
+    animation-delay: var(--d);
+  }
+  @keyframes blipflash{
+    0%,6%{ box-shadow:0 0 12px 4px var(--cyan); opacity:1; }
+    10%,100%{ box-shadow:0 0 0 rgba(0,0,0,0); opacity:.45; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .radar-sweep{ animation:none; }
+    .blip i{ animation:none; opacity:.8; }
+  }
+
+  /* ---------- TERMINAL WINDOW ---------- */
+  .term{
+    margin-top: 48px;
+    background: var(--bg-raised);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6);
+  }
+  .term-bar{
+    display:flex; align-items:center; gap:8px;
+    padding: 10px 14px; background:#0f1614; border-bottom:1px solid var(--rule);
+  }
+  .term-bar .tdot{ width:10px;height:10px;border-radius:50%; background:#333; }
+  .term-bar .label{ margin-left:10px; font-size:11px; color: var(--paper-dim); }
+  .term-body{ padding: 20px 22px; font-size: 13px; }
+  .term-body .l{ margin-bottom:6px; }
+  .term-body .rem{ color: var(--paper-dim); }
+  .term-body .val{ color: var(--paper); }
+  .term-body .hl{ color: var(--cyan); }
+  .term-body .ok{ color: var(--cyan); }
+  .menu-row{ display:flex; gap:10px; }
+  .menu-row .k{ color: var(--cyan); width: 18px; }
+
+  /* ---------- SECTIONS ---------- */
+  section{ padding: 60px 0; border-bottom: 1px solid var(--rule); }
+  .eyebrow{ font-size:11px; letter-spacing: 2px; color: var(--cyan-dim); text-transform:uppercase; margin-bottom: 10px; }
+  h2.disp{ font-size: clamp(21px, 3.2vw, 28px); color: var(--paper); font-weight:700; }
+  .section-intro{ max-width: 600px; color: var(--paper-dim); margin-top: 12px; font-size: 14px; }
+
+  .modules{ margin-top: 32px; border-top: 1px solid var(--rule); }
+  .mod{
+    display:grid;
+    grid-template-columns: 46px 1fr auto;
+    gap: 16px;
+    align-items: baseline;
+    padding: 16px 4px;
+    border-bottom: 1px solid var(--rule);
+    transition: background .15s ease;
+  }
+  .mod:hover{ background: var(--cyan-faint); }
+  .mod .key{ font-family:'Space Mono',monospace; color: var(--cyan); font-size:15px; }
+  .mod .name{ color: var(--paper); font-size:14.5px; font-weight:600; }
+  .mod .callsign{ color: var(--cyan-dim); font-size:10.5px; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:3px; }
+  .mod .desc{ color: var(--paper-dim); font-size:12.5px; margin-top:3px; }
+  .mod .flag{ font-size:11px; color: var(--paper-dim); border:1px solid var(--rule); padding:3px 8px; white-space:nowrap; align-self:center; }
+  .mod .flag.new{ color: var(--amber); border-color: var(--amber-dim); }
+
+  .feats{ display:grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--rule); margin-top: 32px; }
+  .feat{ background: var(--bg); padding: 24px; }
+  .feat .bars{ color: var(--cyan-dim); font-family:'Space Mono',monospace; font-size:13px; letter-spacing:2px; }
+  .feat h3{ color: var(--paper); font-size:15px; margin-top:10px; }
+  .feat p{ color: var(--paper-dim); font-size:12.5px; margin-top:8px; }
+
+  .install-box{ margin-top: 28px; background: var(--bg-raised); border:1px solid var(--rule); border-radius:6px; }
+  .install-tabs{ display:flex; border-bottom:1px solid var(--rule); }
+  .install-tabs div{ padding: 10px 16px; font-size:12px; color: var(--paper-dim); border-right:1px solid var(--rule); }
+  .install-tabs div.active{ color: var(--cyan); background: var(--cyan-faint); }
+  pre.code{ padding: 20px 22px; font-size: 13px; overflow-x:auto; color: var(--paper); }
+  pre.code .c1{ color: var(--paper-dim); }
+  pre.code .c2{ color: var(--cyan); }
+  pre.code .c3{ color: var(--cyan); }
+
+  .log{ margin-top: 28px; }
+  .log-row{ display:flex; gap: 18px; padding: 12px 0; border-bottom: 1px solid var(--rule); font-size: 13px; }
+  .log-row .tag{ color: var(--bg); background: var(--cyan); font-size:10px; padding: 2px 6px; height: fit-content; letter-spacing:.5px; font-weight:700; }
+  .log-row .tag.fix{ background: var(--amber); }
+  .log-row .txt{ color: var(--paper-dim); }
+  .log-row .txt b{ color: var(--paper); font-weight:600; }
+
+  footer{ padding: 40px 0 60px; }
+  footer .wrap{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;}
+  footer .fine{ color: var(--paper-dim); font-size:12px; }
+  footer .flinks a{ margin-left:18px; color: var(--paper-dim); font-size:12px; }
+  footer .flinks a:hover{ color: var(--cyan); }
+
+  @media (max-width: 820px){
+    .hero-grid{ grid-template-columns: 1fr; }
+    .radar-holder{ margin-top: 10px; }
+  }
+  @media (max-width: 720px){
+    .feats{ grid-template-columns: 1fr; }
+    .mod{ grid-template-columns: 32px 1fr; }
+    .mod .flag{ display:none; }
+    nav{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="boot"><span id="boot-text"></span><span class="caret"></span></div>
+
+<header>
+  <div class="navrow">
+    <div class="brand"><span class="dot"></span>MR_EMA_RECON</div>
+    <nav>
+      <a href="#modules">modules</a>
+      <a href="#features">features</a>
+      <a href="#install">install</a>
+      <a href="#log">changelog</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <div class="prompt-line"><span>~/termux $</span> ./mr-ema-recon --version</div>
+          <h1 class="mono-display">mr ema<br>recon suite<span class="pro">PRO</span></h1>
+          <p class="tagline">A <b>nine-module</b> signal &amp; host recon console that runs entirely inside Termux. No PC, no root, no VPS &mdash; sweep a target from the phone in your pocket.</p>
+
+          <div class="hero-meta">
+            <div class="meta-item"><b>09</b>modules</div>
+            <div class="meta-item"><b>0</b>root required</div>
+            <div class="meta-item"><b>1</b>self-contained script</div>
+            <div class="meta-item"><b>v2.0</b>current build</div>
+          </div>
+
+          <div class="cta-row">
+            <button class="btn solid">$ git clone recon-suite</button>
+            <button class="btn" onclick="document.getElementById('modules').scrollIntoView()">view modules &darr;</button>
+          </div>
+        </div>
+
+        <div class="radar-holder">
+          <div class="radar" aria-hidden="true">
+            <div class="radar-rings"></div>
+            <div class="radar-cross"></div>
+            <div class="radar-sweep"></div>
+            <div class="radar-core"></div>
+            <div class="blip" style="--a:0deg;--d:0s"><i></i></div>
+            <div class="blip" style="--a:40deg;--d:.66s"><i></i></div>
+            <div class="blip" style="--a:80deg;--d:1.33s"><i></i></div>
+            <div class="blip" style="--a:120deg;--d:2s"><i></i></div>
+            <div class="blip" style="--a:160deg;--d:2.66s"><i></i></div>
+            <div class="blip" style="--a:200deg;--d:3.33s"><i></i></div>
+            <div class="blip" style="--a:240deg;--d:4s"><i></i></div>
+            <div class="blip" style="--a:280deg;--d:4.66s"><i></i></div>
+            <div class="blip" style="--a:320deg;--d:5.33s"><i></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="term-bar">
+          <div class="tdot" style="background:#e0524b"></div>
+          <div class="tdot" style="background:#e0b34b"></div>
+          <div class="tdot" style="background:#4bae4f"></div>
+          <div class="label">termux &mdash; mr-ema-recon.py</div>
+        </div>
+        <div class="term-body">
+          <div class="l rem">[*] loading signal-cyan ui theme .......... <span class="ok">ok</span></div>
+          <div class="l rem">[*] checking dependencies ................. <span class="ok">ok</span></div>
+          <div class="l rem">[*] session key ............................ <span class="hl">#8841</span></div>
+          <div class="l val" style="margin:14px 0 10px;">SELECT MODULE</div>
+          <div class="menu-row"><span class="k">01</span><span class="val">Target Lock &mdash; Host Intelligence</span></div>
+          <div class="menu-row"><span class="k">02</span><span class="val">Trace Route &mdash; DNS &amp; IP Intelligence</span></div>
+          <div class="menu-row"><span class="k">03</span><span class="val">Grid Sweep &mdash; Subdomain Discovery</span></div>
+          <div class="menu-row"><span class="k">04</span><span class="val">Signal Breach &mdash; SNI Bug Testing</span></div>
+          <div class="menu-row"><span class="k">&gt;</span><span class="hl">_</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="modules">
+    <div class="wrap">
+      <div class="eyebrow">the console</div>
+      <h2 class="disp">Nine modules, one menu.</h2>
+      <p class="section-intro">Every module lives in the same numbered menu you actually type into. No hidden flags, no config files to hand-edit &mdash; press a number, get an answer.</p>
+
+      <div class="modules">
+        <div class="mod">
+          <div class="key">01</div>
+          <div><div class="callsign">Target Lock</div><div class="name">Host Intelligence</div><div class="desc">Resolve a target and pull back headers, ports, and service banners in one pass.</div></div>
+          <div class="flag">core</div>
+        </div>
+        <div class="mod">
+          <div class="key">02</div>
+          <div><div class="callsign">Trace Route</div><div class="name">DNS &amp; IP Intelligence</div><div class="desc">A / AAAA / MX / TXT / NS lookups, reverse DNS, and ASN / geo tagging.</div></div>
+          <div class="flag">core</div>
+        </div>
+        <div class="mod">
+          <div class="key">03</div>
+          <div><div class="callsign">Grid Sweep</div><div class="name">Subdomain Discovery</div><div class="desc">Parallelised wordlist and certificate-transparency sweep across a target domain.</div></div>
+          <div class="flag">parallel</div>
+        </div>
+        <div class="mod">
+          <div class="key">04</div>
+          <div><div class="callsign">Signal Breach</div><div class="name">SNI Bug Testing</div><div class="desc">Probe hosts for exploitable SNI / payload configurations against your carrier.</div></div>
+          <div class="flag">carrier</div>
+        </div>
+        <div class="mod">
+          <div class="key">05</div>
+          <div><div class="callsign">Payload Check</div><div class="name">Injector Config Testing</div><div class="desc">Validate injector payload files before you push them to a live connection.</div></div>
+          <div class="flag new">new in v2</div>
+        </div>
+        <div class="mod">
+          <div class="key">06</div>
+          <div><div class="callsign">Blackout Route</div><div class="name">Internet Bypass Diagnostics</div><div class="desc">Walk through common bypass methods and report which ones the network allows.</div></div>
+          <div class="flag new">new in v2</div>
+        </div>
+        <div class="mod">
+          <div class="key">07</div>
+          <div><div class="callsign">Port Watch</div><div class="name">Port &amp; Service Scan</div><div class="desc">Lightweight TCP sweep with service fingerprinting on common ranges.</div></div>
+          <div class="flag">core</div>
+        </div>
+        <div class="mod">
+          <div class="key">08</div>
+          <div><div class="callsign">Link Status</div><div class="name">Connectivity Diagnostics</div><div class="desc">Latency, packet loss, and route tracing to isolate where a connection breaks.</div></div>
+          <div class="flag">core</div>
+        </div>
+        <div class="mod">
+          <div class="key">09</div>
+          <div><div class="callsign">Debrief</div><div class="name">Session &amp; Report Export</div><div class="desc">Save every result from the session to a single readable log file.</div></div>
+          <div class="flag">core</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="eyebrow">why termux-first</div>
+      <h2 class="disp">Built for the phone, not ported to it.</h2>
+      <p class="section-intro">Recon suites are usually written for a laptop and then apologised for on Android. This one was written inside Termux from the first line.</p>
+
+      <div class="feats">
+        <div class="feat">
+          <div class="bars">▮▮▯</div>
+          <h3>No root, no VPS</h3>
+          <p>Every module runs on-device. Nothing phones home, nothing needs a server you have to rent.</p>
+        </div>
+        <div class="feat">
+          <div class="bars">▮▮▮</div>
+          <h3>Signal-cyan UI</h3>
+          <p>A high-contrast Rich-powered interface, readable in direct sunlight on a five-inch screen.</p>
+        </div>
+        <div class="feat">
+          <div class="bars">▮▯▯</div>
+          <h3>ARM-safe installs</h3>
+          <p>Dependencies are pinned to versions that build cleanly on Termux's ARM Python, no Rust toolchain required.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <div class="eyebrow">get running</div>
+      <h2 class="disp">Three commands to first scan.</h2>
+
+      <div class="install-box">
+        <div class="install-tabs"><div class="active">termux</div><div>requirements</div></div>
+        <pre class="code"><span class="c1"># clone the suite</span>
+<span class="c3">$</span> pkg install python git -y
+<span class="c3">$</span> git clone https://github.com/techema3-alt/mr-ema-recon-suite
+<span class="c3">$</span> cd mr-ema-recon-suite
+
+<span class="c1"># install deps (ARM-safe)</span>
+<span class="c3">$</span> pkg install python-cryptography -y
+<span class="c3">$</span> pip install -r requirements.txt
+
+<span class="c1"># run it</span>
+<span class="c3">$</span> python mr_ema_recon.py</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="log" style="border-bottom:none;">
+    <div class="wrap">
+      <div class="eyebrow">changelog</div>
+      <h2 class="disp">v2.0.0</h2>
+
+      <div class="log">
+        <div class="log-row">
+          <div class="tag">NEW</div>
+          <div class="txt"><b>Payload Check</b> and <b>Blackout Route</b> added to the core menu &mdash; same nine-slot layout, no structural changes.</div>
+        </div>
+        <div class="log-row">
+          <div class="tag fix">FIX</div>
+          <div class="txt">Startup crash resolved &mdash; a stray numeric string was being saved as a Rich color style and rejected on boot.</div>
+        </div>
+        <div class="log-row">
+          <div class="tag fix">FIX</div>
+          <div class="txt">Theme corruption in the signal-cyan UI cleared; menu colors now persist correctly across sessions.</div>
+        </div>
+        <div class="log-row">
+          <div class="tag fix">FIX</div>
+          <div class="txt">Grid Sweep parallelism tuned to stop silent save failures on large wordlists.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fine">MR EMA RECON SUITE PRO &mdash; built for Termux.</div>
+    <div class="flinks">
+      <a href="#modules">modules</a>
+      <a href="#install">install</a>
+      <a href="https://github.com/techema3-alt">github</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var el = document.getElementById('boot-text');
+    var boot = document.getElementById('boot');
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      if(boot) boot.style.display = 'none';
+      return;
+    }
+    var lines = [
+      "MR EMA RECON SUITE :: PRO",
+      "loading signal-cyan theme .... ok",
+      "mounting termux fs ............ ok",
+      "checking dependencies ......... ok",
+      "initializing 9 modules ........ ok",
+      "",
+      "welcome back, operator."
+    ];
+    var full = lines.join("\n");
+    var i = 0;
+    function type(){
+      if (i <= full.length){
+        el.textContent = full.slice(0, i);
+        i += Math.random() < 0.1 ? 2 : 1;
+        setTimeout(type, 14);
+      } else {
+        setTimeout(function(){ boot.classList.add('hide'); }, 400);
+      }
+    }
+    type();
+  })();
+</script>
+
+</body>
+</html>
